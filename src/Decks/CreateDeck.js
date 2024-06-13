@@ -4,8 +4,7 @@ import { createDeck } from "../utils/api";
 import DeckForm from "./Form";
 import Breadcrumb from "../Home/Breadcrumbs";
 
-
-function CreateDeck({ decks, setDecks }) {
+function CreateDeck({ decks = [], setDecks }) {
     const [formData, setFormData] = useState({
         name: "",
         description: "",
@@ -21,48 +20,41 @@ function CreateDeck({ decks, setDecks }) {
         });
     };
 
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
 
-        // Check if required fields are filled
         if (!formData.name || !formData.description) {
             alert("Please fill out all required fields.");
             return;
         }
 
-        // Create a new deck object
         const newDeck = {
-            id: decks.length + 1, // Find the currenct size of the decks state and increase the value by 1
+            id: decks.length + 1,
             ...formData,
             cards: [],
         };
 
         try {
-            // Call the createDeck function to save the deck to the API
-            const createdDeck = createDeck(newDeck);
+            const createdDeck = await createDeck(newDeck);
 
-            // Update the decks state with the created deck
             setDecks([...decks, createdDeck]);
 
-            // setTimeout using a timeout of 0 milliseconds to execute after the re-render
             setTimeout(() => {
-                navigate(`/decks/${newDeck.id}`); // Redirect to the DeckView for the newly created deck
+                navigate(`/decks/${createdDeck.id}`);
             }, 0);
         } catch (error) {
             console.error("Error creating deck:", error);
+            alert("An error occurred while creating the deck. Please try again.");
         }
     };
 
     const handleCancel = () => {
-        // If the user clicks Cancel, go back to the Home screen
         navigate("/");
     };
 
     const breadcrumbPaths = [
         { link: "/", text: "Home" },
-        {
-            text: "Create Deck",
-        },
+        { text: "Create Deck" },
     ];
 
     return (

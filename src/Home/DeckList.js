@@ -1,8 +1,11 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import { deleteDeck } from "../utils/api";
+import React, { useEffect, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { deleteDeck, listDecks } from "../utils/api";
 
-function DecksList({ decks, setDecks }) {
+function DecksList({ setDecks }) {
+    const [decks, setLocalDecks] = useState([]);
+    const location = useLocation();
+
     const handleDeleteClick = (deckId) => {
         const abortController = new AbortController();
         const isConfirmed = window.confirm(
@@ -12,7 +15,7 @@ function DecksList({ decks, setDecks }) {
         if (isConfirmed) {
             deleteDeck(deckId, abortController.signal)
                 .then(() => {
-                    setDecks((prevDecks) =>
+                    setLocalDecks((prevDecks) =>
                         prevDecks.filter((deck) => deck.id !== deckId)
                     );
                 })
@@ -27,6 +30,20 @@ function DecksList({ decks, setDecks }) {
 
         return () => abortController.abort();
     };
+
+    useEffect(() => {
+        const fetchDecks = async () => {
+            try {
+                const fetchedDecks = await listDecks();
+                setLocalDecks(fetchedDecks);
+                setDecks(fetchedDecks); // Update the parent state if necessary
+            } catch (error) {
+                console.error("Error fetching decks:", error);
+            }
+        };
+
+        fetchDecks();
+    }, [location, setDecks]);
 
     if (decks.length === 0) {
         return <p>Loading...</p>;
