@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-function Flashcard({ card, url }) {
+function Flashcard({ card, url, onDelete }) {
     return (
         <div className="card mb-3">
             <div className="card-body">
@@ -13,7 +13,10 @@ function Flashcard({ card, url }) {
                 >
                     <i className="bi bi-pencil-fill"></i> Edit
                 </Link>
-                <button className="btn btn-danger">
+                <button
+                    onClick={() => onDelete(card.id)}
+                    className="btn btn-danger"
+                >
                     <i className="bi bi-trash-fill">Delete</i>
                 </button>
             </div>

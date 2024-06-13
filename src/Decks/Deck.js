@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { readDeck, deleteDeck } from "../utils/api";
+import {readDeck, deleteDeck, deleteCard} from "../utils/api";
 import Breadcrumb from "../Home/Breadcrumbs";
 import Flashcard from "../Cards/Card";
 
-function Deck({ setDecks }) {
+function Deck({ setDecks}) {
     const { deckId } = useParams();
     const [currentDeck, setCurrentDeck] = useState(null);
     const navigate = useNavigate();
@@ -33,6 +33,16 @@ function Deck({ setDecks }) {
                 console.error("Error deleting deck:", error);
             }
         }
+    };
+
+    const handleCardDelete = (cardId) => {
+        const abortController = new AbortController();
+        deleteCard(cardId, abortController.signal)
+            .then(() => {
+                window.location.reload();
+            })
+            .catch(err => console.error(err));
+        return () => abortController.abort();
     };
 
     const breadcrumbPaths = [
@@ -66,9 +76,18 @@ function Deck({ setDecks }) {
 
             <h2>Flashcards</h2>
             <div>
-                {currentDeck.cards.map((card) => (
-                    <Flashcard key={card.id} card={card} url={`/decks/${deckId}`} />
-                ))}
+                {currentDeck.cards && currentDeck.cards.length > 0 ? (
+                    currentDeck.cards.map((card) => (
+                        <Flashcard
+                            key={card.id}
+                            card={card}
+                            url={`/decks/${deckId}`}
+                            onDelete={handleCardDelete}
+                        />
+                    ))
+                ) : (
+                    <p>No cards available.</p>
+                )}
             </div>
         </div>
     ) : (
