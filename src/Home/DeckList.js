@@ -46,7 +46,7 @@ function DecksList({ setDecks }) {
     }, [location, setDecks]);
 
     if (decks.length === 0) {
-        return <p>Loading...</p>;
+        return <p>Make a Deck ^</p>;
     }
 
     return (
